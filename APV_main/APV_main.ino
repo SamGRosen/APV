@@ -20,11 +20,24 @@
 #define S3R A3
 #define sensorOutR A4
 
-#define PING_HEIGHT 3
-#define EDGE_NOISE 5
+#define STOPPING_DIST 15
+
+#define DT 100
 
 int currColorL[3];
 int currColorR[3];
+int currDist;
+int cleanedDriveways = 0;
+
+bool isGreen(int arr[]){
+  return true;
+}
+bool isRed(int arr[]){
+  return true;
+}
+bool isBlack(int arr[]){
+  return true;
+}
  
 void setup()
 {
@@ -58,7 +71,7 @@ void setup()
   digitalWrite(S1R,LOW);
 }
 
-void getColorR(int arr[]){
+void getColorL(int arr[]){
   int frequency = 0;
   
   digitalWrite(S2R,LOW);
@@ -80,7 +93,7 @@ void getColorR(int arr[]){
   arr[2] = frequency;
 }
 
-void getColorL(int arr[]){
+void getColorR(int arr[]){
   int frequency = 0;
   
   digitalWrite(S2,LOW);
@@ -102,9 +115,8 @@ void getColorL(int arr[]){
   arr[2] = frequency;
 }
 
-void goStraight(int t) 
+void carStraight(int t) 
 {
-
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
@@ -121,51 +133,6 @@ void goStraight(int t)
   digitalWrite(In3, LOW);
   digitalWrite(In4, LOW);
 }
-
-void goBackward(int t) 
-{
-
-  digitalWrite(In1, LOW);
-  digitalWrite(In2, HIGH);
-
-  analogWrite(EnA, 200);
-
-  digitalWrite(In3, HIGH);
-  digitalWrite(In4, LOW);
-
-  analogWrite(EnB, 200);
-  delay(t);
-
-  digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
-  digitalWrite(In3, LOW);
-  digitalWrite(In4, LOW);
-}
-
-void goBackwardCurve(int t) 
-{
-
-  digitalWrite(In1, LOW);
-  digitalWrite(In2, HIGH);
-
-  analogWrite(EnA, 150);
-
-  digitalWrite(In3, HIGH);
-  digitalWrite(In4, LOW);
-
-  analogWrite(EnB, 100);
-  delay(t);
-
-  digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
-  digitalWrite(In3, LOW);
-  digitalWrite(In4, LOW);
-}
-long microsecondsToInches(long microseconds)
-{
-  return microseconds / 74 / 2;
-}
-
 long microsecondsToCentimeters(long microseconds)
 {
   return microseconds / 29 / 2;
@@ -185,36 +152,74 @@ long ping() {
 
   return cm;
 }
-void loop()
-{
-  /** (Assume car is straddling colored track, moving counter-clockwise)
-   * 1. Car assumes it is placed correctly on track
-   * 2. Car moves slightly to left to detect color of track
-   * 3. If green GOTO GREEN:
-   * 4. If Red move slightly to right to be back normal on track.
-   * 5. Check ping sensor, if object in front, WAIT 
-   * 6. Move forward
-   * 7. If diffenent color detecting correct back to track (turn)
-   * 8. GOTO 1
-   * 
-   * GREEN: (ASSUME CAR PUSHES COUNTER CLOCKWISE INTO TRACK)
-   *   G1. Turn left to push snow
-   *   G2. Move back to track
-   *   G3. Check ping sensor, if object in front, WAIT
-   *   G4. Move forward to avoid always plowing a single green spot
-   *   G5. GOTO 1
-   * 
-   */
-  getColorR(currColorR);
+void carStop(int t){
+  digitalWrite(In1, HIGH);
+  digitalWrite(In2, LOW);
+
+  analogWrite(EnA, 0);
+
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, HIGH);
+
+  analogWrite(EnB, 0);
+  delay(t);
+
+  digitalWrite(In1, LOW);
+  digitalWrite(In2, LOW);  
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, LOW);
+}
+
+// PRINT FOR DEBUGGING
+void printColor(int arr[], String color){
+  Serial.print(color);
+  Serial.print(": ");
   for (int i = 0; i < 3; i++){
-    Serial.print(currColorR[i]);
+    Serial.print(arr[i]);
     Serial.print(",");
   }
   Serial.println();
+}
+bool GREEN() {
+  turnLeft();
+  plowForward();
+  reverse()
+  turnRight()
+  plowForward();
+  return true;
+}
+void loop()
+{ 
   
-  if (ping() < PING_HEIGHT+EDGE_NOISE) {
-     goStraight(5);
+  getColorL(currColorL);
+  getColorR(currColorR);
+  currDist = ping();
+
+  // PRINT FOR DEBUGGING
+  printColor(currColorL, "Left");
+  printColor(currColorR, "Right");
+
+  if (currDist < STOPPING_DIST){
+    carStop(DT);
   } else {
-    goBackwardCurve(1000);
+    if (isGreen(currColorL) || isGreen(currColorR)){
+      if (GREEN()){
+        cleanedDriveways++;
+      } else {
+        carEmergency(DT);
+      }
+    }
+    else if (isBlack(currColorL) && isBlack(currColorR)){
+      carStraight(DT);
+    }
+    else if (isBlack(currColorL) && isRed(currColorR)){
+      carAdjustLeft(DT);
+    }
+    else if (isRed(currColorL) && isBlack(currColorR)){
+      carAdjustRight(DT);
+    }
+    else {
+      carEmergency(DT);
+    }
   }
 }
