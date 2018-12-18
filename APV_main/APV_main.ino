@@ -187,6 +187,24 @@ long ping() {
 }
 void loop()
 {
+  /** (Assume car is straddling colored track, moving counter-clockwise)
+   * 1. Car assumes it is placed correctly on track
+   * 2. Car moves slightly to left to detect color of track
+   * 3. If green GOTO GREEN:
+   * 4. If Red move slightly to right to be back normal on track.
+   * 5. Check ping sensor, if object in front, WAIT 
+   * 6. Move forward
+   * 7. If diffenent color detecting correct back to track (turn)
+   * 8. GOTO 1
+   * 
+   * GREEN: (ASSUME CAR PUSHES COUNTER CLOCKWISE INTO TRACK)
+   *   G1. Turn left to push snow
+   *   G2. Move back to track
+   *   G3. Check ping sensor, if object in front, WAIT
+   *   G4. Move forward to avoid always plowing a single green spot
+   *   G5. GOTO 1
+   * 
+   */
   getColorR(currColorR);
   for (int i = 0; i < 3; i++){
     Serial.print(currColorR[i]);
