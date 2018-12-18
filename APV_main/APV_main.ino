@@ -22,7 +22,7 @@
 
 #define STOPPING_DIST 8
 
-#define DT 20
+#define DT 250
 
 int currColorL[3];
 int currColorR[3];
@@ -77,12 +77,16 @@ void getColorL(int arr[]) {
   digitalWrite(S2R, LOW);
   digitalWrite(S3R, LOW);
   frequency = pulseIn(sensorOutR, LOW);
+  Serial.print("Left raw red = ");
+  Serial.println(frequency);
   frequency = map(frequency, 18, 130, 255, 0);
   arr[0] = frequency;
 
   digitalWrite(S2R, HIGH);
   digitalWrite(S3R, HIGH);
   frequency = pulseIn(sensorOutR, LOW);
+  Serial.print("Left raw green = ");
+  Serial.println(frequency);
   frequency = map(frequency, 19, 162, 255, 0);
   arr[1] = frequency;
 
@@ -99,12 +103,16 @@ void getColorR(int arr[]) {
   digitalWrite(S2, LOW);
   digitalWrite(S3, LOW);
   frequency = pulseIn(sensorOut, LOW);
+  Serial.print("Right raw red = ");
+  Serial.println(frequency);
   frequency = map(frequency, 4, 23, 255, 0);
   arr[0] = frequency;
 
   digitalWrite(S2, HIGH);
   digitalWrite(S3, HIGH);
   frequency = pulseIn(sensorOut, LOW);
+  Serial.print("Right raw green = ");
+  Serial.println(frequency);
   frequency = map(frequency, 4, 30, 255, 0);
   arr[1] = frequency;
 
@@ -120,12 +128,12 @@ void carStraight(int t)
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
-  analogWrite(EnA, 120);
+  analogWrite(EnA, 200);
 
   digitalWrite(In3, LOW);
   digitalWrite(In4, HIGH);
 
-  analogWrite(EnB, 120);
+  analogWrite(EnB, 200);
   delay(t);
 
   digitalWrite(In1, LOW);
@@ -184,7 +192,7 @@ void turnLeft() {
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
-  analogWrite(EnA, 100);
+  analogWrite(EnA, 120);
 
   digitalWrite(In3, LOW);
   digitalWrite(In4, HIGH);
@@ -201,12 +209,12 @@ void reverse() {
   digitalWrite(In1, LOW);
   digitalWrite(In2, HIGH);
 
-  analogWrite(EnA, 80);
+  analogWrite(EnA, 120);
 
   digitalWrite(In3, HIGH);
   digitalWrite(In4, LOW);
 
-  analogWrite(EnB, 80);
+  analogWrite(EnB, 120);
   delay(1000);
 
   digitalWrite(In1, LOW);
@@ -218,12 +226,12 @@ void turnRight() {
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
-  analogWrite(EnA, 120);
+  analogWrite(EnA, 150);
 
   digitalWrite(In3, LOW);
   digitalWrite(In4, HIGH);
 
-  analogWrite(EnB, 80);
+  analogWrite(EnB, 120);
   delay(1500);
 
   digitalWrite(In1, LOW);
@@ -249,12 +257,12 @@ void carAdjustLeft(int t)
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
-  analogWrite(EnA, 100);
+  analogWrite(EnA, 140);
 
   digitalWrite(In3, LOW);
   digitalWrite(In4, HIGH);
 
-  analogWrite(EnB, 80);
+  analogWrite(EnB, 120);
   delay(t);
 
   digitalWrite(In1, LOW);
@@ -267,12 +275,12 @@ void carAdjustRight(int t)
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
-  analogWrite(EnA, 80);
+  analogWrite(EnA, 120);
 
   digitalWrite(In3, LOW);
   digitalWrite(In4, HIGH);
 
-  analogWrite(EnB, 100);
+  analogWrite(EnB, 140);
   delay(t);
 
   digitalWrite(In1, LOW);
@@ -323,6 +331,6 @@ void loop()
   // PRINT FOR DEBUGGING
   //printColor(currColorL, "Left");
   //printColor(currColorR, "Right");
-  delay(5);
+  delay(50);
   updatePosition();
 }
