@@ -180,13 +180,105 @@ void printColor(int arr[], String color){
   }
   Serial.println();
 }
+void turnLeft() {
+  digitalWrite(In1, HIGH);
+  digitalWrite(In2, LOW);
+
+  analogWrite(EnA, 100);
+
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, HIGH);
+
+  analogWrite(EnB, 150);
+  delay(500);
+
+  digitalWrite(In1, LOW);
+  digitalWrite(In2, LOW);  
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, LOW);
+}
+void reverse() {
+  digitalWrite(In1, LOW);
+  digitalWrite(In2, HIGH);
+
+  analogWrite(EnA, 120);
+
+  digitalWrite(In3, HIGH);
+  digitalWrite(In4, LOW);
+
+  analogWrite(EnB, 120);
+  delay(1000);
+
+  digitalWrite(In1, LOW);
+  digitalWrite(In2, LOW);  
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, LOW);
+}
+void turnRight() {
+  digitalWrite(In1, HIGH);
+  digitalWrite(In2, LOW);
+
+  analogWrite(EnA, 150);
+
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, HIGH);
+
+  analogWrite(EnB, 100);
+  delay(500);
+
+  digitalWrite(In1, LOW);
+  digitalWrite(In2, LOW);  
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, LOW);
+}
 bool GREEN() {
   turnLeft();
-  plowForward();
-  reverse()
-  turnRight()
-  plowForward();
+  delay(100);
+  carStraight(1000);
+  delay(100);
+  reverse();
+  delay(100);
+  turnRight();
+  delay(100);
+  carStraight(1000);
+  delay(100);
   return true;
+}
+void carAdjustLeft(int t) 
+{
+  digitalWrite(In1, HIGH);
+  digitalWrite(In2, LOW);
+
+  analogWrite(EnA, 150);
+
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, HIGH);
+
+  analogWrite(EnB, 100);
+  delay(t);
+
+  digitalWrite(In1, LOW);
+  digitalWrite(In2, LOW);  
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, LOW);
+}
+void carAdjustRight(int t) 
+{
+  digitalWrite(In1, HIGH);
+  digitalWrite(In2, LOW);
+
+  analogWrite(EnA, 100);
+
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, HIGH);
+
+  analogWrite(EnB, 150);
+  delay(t);
+
+  digitalWrite(In1, LOW);
+  digitalWrite(In2, LOW);  
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, LOW);
 }
 void loop()
 { 
@@ -206,20 +298,20 @@ void loop()
       if (GREEN()){
         cleanedDriveways++;
       } else {
-        carEmergency(DT);
+        carStop(DT);
       }
     }
     else if (isBlack(currColorL) && isBlack(currColorR)){
       carStraight(DT);
     }
-    else if (isBlack(currColorL) && isRed(currColorR)){
+    else if (isBlack(currColorL) && !isBlack(currColorR)){
       carAdjustLeft(DT);
     }
-    else if (isRed(currColorL) && isBlack(currColorR)){
+    else if (!isBlack(currColorL) && isBlack(currColorR)){
       carAdjustRight(DT);
     }
     else {
-      carEmergency(DT);
+      carStop(DT);
     }
   }
 }
