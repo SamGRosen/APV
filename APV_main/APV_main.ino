@@ -20,29 +20,29 @@
 #define S3R A3
 #define sensorOutR A4
 
-#define STOPPING_DIST 15
+#define STOPPING_DIST 8
 
-#define DT 100
+#define DT 20
 
 int currColorL[3];
 int currColorR[3];
 int currDist;
 int cleanedDriveways = 0;
 
-bool isGreen(int arr[]){
+bool isGreen(int arr[]) {
   return arr[0] < 100 && arr[1] > 100 && arr[2] < 100;
 }
-bool isRed(int arr[]){
+bool isRed(int arr[]) {
   return arr[0] > 100 && arr[1] < 100 && arr[2] < 100;
 }
-bool isBlack(int arr[]){
+bool isBlack(int arr[]) {
   return arr[0] < 100 && arr[1] < 100 && arr[2] < 100;
 }
- 
+
 void setup()
 {
   Serial.begin(9600);
-    
+
   pinMode(EnA, OUTPUT);
   pinMode(EnB, OUTPUT);
   pinMode(In1, OUTPUT);
@@ -55,81 +55,81 @@ void setup()
   pinMode(S2, OUTPUT);
   pinMode(S3, OUTPUT);
   pinMode(sensorOut, INPUT);
-  
+
   // Setting frequency-scaling to 20%
-  digitalWrite(S0,HIGH);
-  digitalWrite(S1,LOW);
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, LOW);
 
   pinMode(S0R, OUTPUT);
   pinMode(S1R, OUTPUT);
   pinMode(S2R, OUTPUT);
   pinMode(S3R, OUTPUT);
   pinMode(sensorOutR, INPUT);
-  
+
   // Setting frequency-scaling to 20%
-  digitalWrite(S0R,HIGH);
-  digitalWrite(S1R,LOW);
+  digitalWrite(S0R, HIGH);
+  digitalWrite(S1R, LOW);
 }
 
-void getColorL(int arr[]){
+void getColorL(int arr[]) {
   int frequency = 0;
-  
-  digitalWrite(S2R,LOW);
-  digitalWrite(S3R,LOW);
+
+  digitalWrite(S2R, LOW);
+  digitalWrite(S3R, LOW);
   frequency = pulseIn(sensorOutR, LOW);
-  frequency = map(frequency, 18,152,255,0);
+  frequency = map(frequency, 18, 130, 255, 0);
   arr[0] = frequency;
 
-  digitalWrite(S2R,HIGH);
-  digitalWrite(S3R,HIGH);
+  digitalWrite(S2R, HIGH);
+  digitalWrite(S3R, HIGH);
   frequency = pulseIn(sensorOutR, LOW);
-  frequency = map(frequency, 20,176,255,0);
+  frequency = map(frequency, 19, 162, 255, 0);
   arr[1] = frequency;
 
-  digitalWrite(S2R,LOW);
-  digitalWrite(S3R,HIGH);
+  digitalWrite(S2R, LOW);
+  digitalWrite(S3R, HIGH);
   frequency = pulseIn(sensorOutR, LOW);
-  frequency = map(frequency, 14,114,255,0);
+  frequency = map(frequency, 13, 111, 255, 0);
   arr[2] = frequency;
 }
 
-void getColorR(int arr[]){
+void getColorR(int arr[]) {
   int frequency = 0;
-  
-  digitalWrite(S2,LOW);
-  digitalWrite(S3,LOW);
+
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, LOW);
   frequency = pulseIn(sensorOut, LOW);
-  frequency = map(frequency, 2,31,255,0);
+  frequency = map(frequency, 4, 23, 255, 0);
   arr[0] = frequency;
 
-  digitalWrite(S2,HIGH);
-  digitalWrite(S3,HIGH);
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, HIGH);
   frequency = pulseIn(sensorOut, LOW);
-  frequency = map(frequency, 2,34,255,0);
+  frequency = map(frequency, 4, 30, 255, 0);
   arr[1] = frequency;
 
-  digitalWrite(S2,LOW);
-  digitalWrite(S3,HIGH);
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, HIGH);
   frequency = pulseIn(sensorOut, LOW);
-  frequency = map(frequency, 2,23,255,0);
+  frequency = map(frequency, 0, 8, 255, 0);
   arr[2] = frequency;
 }
 
-void carStraight(int t) 
+void carStraight(int t)
 {
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
-  analogWrite(EnA, 180);
+  analogWrite(EnA, 120);
 
   digitalWrite(In3, LOW);
   digitalWrite(In4, HIGH);
 
-  analogWrite(EnB, 180);
+  analogWrite(EnB, 120);
   delay(t);
 
   digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
+  digitalWrite(In2, LOW);
   digitalWrite(In3, LOW);
   digitalWrite(In4, LOW);
 }
@@ -152,7 +152,7 @@ long ping() {
 
   return cm;
 }
-void carStop(int t){
+void carStop(int t) {
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
@@ -165,16 +165,16 @@ void carStop(int t){
   delay(t);
 
   digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
+  digitalWrite(In2, LOW);
   digitalWrite(In3, LOW);
   digitalWrite(In4, LOW);
 }
 
 // PRINT FOR DEBUGGING
-void printColor(int arr[], String color){
+void printColor(int arr[], String color) {
   Serial.print(color);
   Serial.print(": ");
-  for (int i = 0; i < 3; i++){
+  for (int i = 0; i < 3; i++) {
     Serial.print(arr[i]);
     Serial.print(",");
   }
@@ -190,10 +190,10 @@ void turnLeft() {
   digitalWrite(In4, HIGH);
 
   analogWrite(EnB, 150);
-  delay(500);
+  delay(1500);
 
   digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
+  digitalWrite(In2, LOW);
   digitalWrite(In3, LOW);
   digitalWrite(In4, LOW);
 }
@@ -201,16 +201,16 @@ void reverse() {
   digitalWrite(In1, LOW);
   digitalWrite(In2, HIGH);
 
-  analogWrite(EnA, 120);
+  analogWrite(EnA, 80);
 
   digitalWrite(In3, HIGH);
   digitalWrite(In4, LOW);
 
-  analogWrite(EnB, 120);
+  analogWrite(EnB, 80);
   delay(1000);
 
   digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
+  digitalWrite(In2, LOW);
   digitalWrite(In3, LOW);
   digitalWrite(In4, LOW);
 }
@@ -218,16 +218,16 @@ void turnRight() {
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
-  analogWrite(EnA, 150);
+  analogWrite(EnA, 120);
 
   digitalWrite(In3, LOW);
   digitalWrite(In4, HIGH);
 
-  analogWrite(EnB, 100);
-  delay(500);
+  analogWrite(EnB, 80);
+  delay(1500);
 
   digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
+  digitalWrite(In2, LOW);
   digitalWrite(In3, LOW);
   digitalWrite(In4, LOW);
 }
@@ -244,25 +244,7 @@ bool GREEN() {
   delay(100);
   return true;
 }
-void carAdjustLeft(int t) 
-{
-  digitalWrite(In1, HIGH);
-  digitalWrite(In2, LOW);
-
-  analogWrite(EnA, 150);
-
-  digitalWrite(In3, LOW);
-  digitalWrite(In4, HIGH);
-
-  analogWrite(EnB, 100);
-  delay(t);
-
-  digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
-  digitalWrite(In3, LOW);
-  digitalWrite(In4, LOW);
-}
-void carAdjustRight(int t) 
+void carAdjustLeft(int t)
 {
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
@@ -272,65 +254,75 @@ void carAdjustRight(int t)
   digitalWrite(In3, LOW);
   digitalWrite(In4, HIGH);
 
-  analogWrite(EnB, 150);
+  analogWrite(EnB, 80);
   delay(t);
 
   digitalWrite(In1, LOW);
-  digitalWrite(In2, LOW);  
+  digitalWrite(In2, LOW);
   digitalWrite(In3, LOW);
   digitalWrite(In4, LOW);
 }
+void carAdjustRight(int t)
+{
+  digitalWrite(In1, HIGH);
+  digitalWrite(In2, LOW);
 
-/** (Assume car is straddling colored track, moving counter-clockwise)
-   * 1. Car assumes it is placed correctly on track
-   * 2. Car moves slightly to left to detect color of track
-   * 3. If green GOTO GREEN:
-   * 4. If Red move slightly to right to be back normal on track.
-   * 5. Check ping sensor, if object in front, WAIT 
-   * 6. Move forward
-   * 7. If diffenent color detecting correct back to track (turn)
-   * 8. GOTO 1
-   * 
-   * GREEN: (ASSUME CAR PUSHES COUNTER CLOCKWISE INTO TRACK)
-   *   G1. Turn left to push snow
-   *   G2. Move back to track
-   *   G3. Check ping sensor, if object in front, WAIT
-   *   G4. Move forward to avoid always plowing a single green spot
-   *   G5. GOTO 1
-   * 
-   */
-void loop()
-{ 
-  
-  getColorL(currColorL);
-  getColorR(currColorR);
-  currDist = ping();
+  analogWrite(EnA, 80);
 
-  // PRINT FOR DEBUGGING
-  printColor(currColorL, "Left");
-  printColor(currColorR, "Right");
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, HIGH);
 
-  if (currDist < STOPPING_DIST){
+  analogWrite(EnB, 100);
+  delay(t);
+
+  digitalWrite(In1, LOW);
+  digitalWrite(In2, LOW);
+  digitalWrite(In3, LOW);
+  digitalWrite(In4, LOW);
+}
+void updatePosition() {
+  if (currDist < STOPPING_DIST) {
+    Serial.println("sees object");
     carStop(DT);
   } else {
-    if (isGreen(currColorL) || isGreen(currColorR)){
-      if (GREEN()){
+    if (isGreen(currColorL) || isGreen(currColorR)) {
+      Serial.println("green");
+      if (GREEN()) {
         cleanedDriveways++;
       } else {
         carStop(DT);
       }
     }
-    else if (isBlack(currColorL) && isBlack(currColorR)){
+    else if (isBlack(currColorL) && isBlack(currColorR)) {
+      Serial.println("straight");
       carStraight(DT);
     }
-    else if (isBlack(currColorL) && !isBlack(currColorR)){
+    else if (isBlack(currColorL) && !isBlack(currColorR)) {
+      Serial.println("adjusting left");
       carAdjustLeft(DT);
     }
-    else if (!isBlack(currColorL) && isBlack(currColorR)){
+    else if (!isBlack(currColorL) && isBlack(currColorR)) {
+      Serial.println("adjusting right");
       carAdjustRight(DT);
     }
     else {
+      Serial.println("emergency");
       carStop(DT);
     }
   }
+}
+
+
+void loop()
+{
+
+  getColorL(currColorL);
+  getColorR(currColorR);
+  currDist = ping();
+
+  // PRINT FOR DEBUGGING
+  //printColor(currColorL, "Left");
+  //printColor(currColorR, "Right");
+  delay(5);
+  updatePosition();
 }
