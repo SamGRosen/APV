@@ -14,13 +14,22 @@
 #define S3 3
 #define sensorOut 4
 
+#define S0R A0
+#define S1R A1
+#define S2R A2
+#define S3R A3
+#define sensorOutR A4
+
 #define PING_HEIGHT 3
 #define EDGE_NOISE 5
 
-int currColor[3];
+int currColorL[3];
+int currColorR[3];
  
 void setup()
 {
+  Serial.begin(9600);
+    
   pinMode(EnA, OUTPUT);
   pinMode(EnB, OUTPUT);
   pinMode(In1, OUTPUT);
@@ -37,27 +46,59 @@ void setup()
   // Setting frequency-scaling to 20%
   digitalWrite(S0,HIGH);
   digitalWrite(S1,LOW);
+
+  pinMode(S0R, OUTPUT);
+  pinMode(S1R, OUTPUT);
+  pinMode(S2R, OUTPUT);
+  pinMode(S3R, OUTPUT);
+  pinMode(sensorOutR, INPUT);
+  
+  // Setting frequency-scaling to 20%
+  digitalWrite(S0R,HIGH);
+  digitalWrite(S1R,LOW);
 }
 
-void getColor(int arr[]){
+void getColorR(int arr[]){
+  int frequency = 0;
+  
+  digitalWrite(S2R,LOW);
+  digitalWrite(S3R,LOW);
+  frequency = pulseIn(sensorOutR, LOW);
+  frequency = map(frequency, 18,152,255,0);
+  arr[0] = frequency;
+
+  digitalWrite(S2R,HIGH);
+  digitalWrite(S3R,HIGH);
+  frequency = pulseIn(sensorOutR, LOW);
+  frequency = map(frequency, 20,176,255,0);
+  arr[1] = frequency;
+
+  digitalWrite(S2R,LOW);
+  digitalWrite(S3R,HIGH);
+  frequency = pulseIn(sensorOutR, LOW);
+  frequency = map(frequency, 14,114,255,0);
+  arr[2] = frequency;
+}
+
+void getColorL(int arr[]){
   int frequency = 0;
   
   digitalWrite(S2,LOW);
   digitalWrite(S3,LOW);
-  
   frequency = pulseIn(sensorOut, LOW);
+  frequency = map(frequency, 2,31,255,0);
   arr[0] = frequency;
 
   digitalWrite(S2,HIGH);
   digitalWrite(S3,HIGH);
-
   frequency = pulseIn(sensorOut, LOW);
+  frequency = map(frequency, 2,34,255,0);
   arr[1] = frequency;
 
   digitalWrite(S2,LOW);
   digitalWrite(S3,HIGH);
   frequency = pulseIn(sensorOut, LOW);
-
+  frequency = map(frequency, 2,23,255,0);
   arr[2] = frequency;
 }
 
@@ -146,7 +187,12 @@ long ping() {
 }
 void loop()
 {
-  getColor(currColor);
+  getColorR(currColorR);
+  for (int i = 0; i < 3; i++){
+    Serial.print(currColorR[i]);
+    Serial.print(",");
+  }
+  Serial.println();
   
   if (ping() < PING_HEIGHT+EDGE_NOISE) {
      goStraight(5);
