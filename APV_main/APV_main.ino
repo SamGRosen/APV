@@ -24,10 +24,35 @@
 
 #define DT 250
 
+#define QSIZE 10;
+
+// INTENSITY IS MAX AT 0 AND MIN AT 255
+#define LEFT_RED_THRESHOLD 30
+#define LEFT_GREEN_THRESHOLD 30
+// RIGHT HAS MUCH SMALLER RANGE THAN LEFT
+#define RIGHT_RED_THRESHOLD 15
+#define RIGHT_GREEN_THRESHOLD 15
+
+#define GREEN 100
+#define RED 200
+#define BLACK 300
+
 int currColorL[3];
 int currColorR[3];
 int currDist;
 int cleanedDriveways = 0;
+
+int leftRedReadingQueue[QSIZE];
+int lrrqIndex = 0;
+int leftGreenReadingQueue[QSIZE];
+int lgrqIndex = 0;
+int rightRedReadingQueue[QSIZE];
+int rrrqIndex = 0;
+int rightGreenReadingQueue[QSIZE];
+int rgrqIndex = 0;
+
+int leftColor;
+int rightColor;
 
 bool isGreen(int arr[]) {
   return arr[0] < 100 && arr[1] > 100 && arr[2] < 100;
@@ -37,6 +62,31 @@ bool isRed(int arr[]) {
 }
 bool isBlack(int arr[]) {
   return arr[0] < 100 && arr[1] < 100 && arr[2] < 100;
+}
+
+void bubble_sort(int arr[], int arr_size) {
+  int i, j;
+  for(i = 0; i < arr_size - 1; i ++) {
+    for(j = 0; j < arr_size - i - 1; j++) {
+      if(arr[j] > arr[j+1]) {
+        int tmp = arr[j];
+        arr[j] = arr[j+1];
+        arr[j+1] = tmp;
+      }
+    }
+  }
+}
+
+int getMedian(int arr[], int arr_size) {
+ int sorted_arr[arr_size];
+ int i = 0;
+ for(i = 0; i < QSIZE; i++) {
+  sorted_arr[i] = arr[i];
+ }
+
+ bubble_sort(sorted_arr, arr_size);
+
+ return sorted_arr[arr_size/2];  
 }
 
 void setup()
@@ -72,55 +122,111 @@ void setup()
 }
 
 void getColorL(int arr[]) {
-  int frequency = 0;
+//  int frequency = 0;
+//
+//  digitalWrite(S2R, LOW);
+//  digitalWrite(S3R, LOW);
+//  frequency = pulseIn(sensorOutR, LOW);
+//  Serial.print("Left raw red = ");
+//  Serial.println(frequency);
+//  frequency = map(frequency, 18, 130, 255, 0);
+//  arr[0] = frequency;
+//
+//  digitalWrite(S2R, HIGH);
+//  digitalWrite(S3R, HIGH);
+//  frequency = pulseIn(sensorOutR, LOW);
+//  Serial.print("Left raw green = ");
+//  Serial.println(frequency);
+//  frequency = map(frequency, 19, 162, 255, 0);
+//  arr[1] = frequency;
+//
+//  digitalWrite(S2R, LOW);
+//  digitalWrite(S3R, HIGH);
+//  frequency = pulseIn(sensorOutR, LOW);
+//  frequency = map(frequency, 13, 111, 255, 0);
+//  arr[2] = frequency;
 
-  digitalWrite(S2R, LOW);
-  digitalWrite(S3R, LOW);
-  frequency = pulseIn(sensorOutR, LOW);
-  Serial.print("Left raw red = ");
-  Serial.println(frequency);
-  frequency = map(frequency, 18, 130, 255, 0);
-  arr[0] = frequency;
+   // Read red
+   int frequency = 0;
 
-  digitalWrite(S2R, HIGH);
-  digitalWrite(S3R, HIGH);
-  frequency = pulseIn(sensorOutR, LOW);
-  Serial.print("Left raw green = ");
-  Serial.println(frequency);
-  frequency = map(frequency, 19, 162, 255, 0);
-  arr[1] = frequency;
+   digitalWrite(S2, LOW);
+   digitalWrite(S3, LOW);
+   frequency = pulseIn(sensorOut, LOW);
+   Serial.print("Left raw red = ");
+   Serial.println(frequency);
+   leftRedReadingQueue[lrrqIndex] = frequency;
+   lrrqIndex = (lrrqIndex + 1) % QSIZE;
 
-  digitalWrite(S2R, LOW);
-  digitalWrite(S3R, HIGH);
-  frequency = pulseIn(sensorOutR, LOW);
-  frequency = map(frequency, 13, 111, 255, 0);
-  arr[2] = frequency;
+   // Read green
+   digitalWrite(S2, HIGH);
+   digitalWrite(S3, HIGH);
+   frequency = pulseIn(sensorOut, LOW);
+   Serial.print("Left raw green = ");
+   Serial.println(frequency);
+   leftGreenReadingQueue[lgrqIndex] = frequency;
+   lgrqIndex = (lgrqIndex + 1) % QSIZE;
+
+   if(getMedian(leftGreenReadingQueue, QSIZE) < LEFT_GREEN_THRESHOLD) {
+     return GREEN;
+   } else if (getMedian(leftRedReadingQueue, QSIZE) < LEFT_RED_THRESHOLD) {
+     return RED;
+   } else {
+      return BLACK;
+   }
 }
 
-void getColorR(int arr[]) {
-  int frequency = 0;
+void getColorR() {
+//  int frequency = 0;
+//
+//  digitalWrite(S2, LOW);
+//  digitalWrite(S3, LOW);
+//  frequency = pulseIn(sensorOut, LOW);
+//  Serial.print("Right raw red = ");
+//  Serial.println(frequency);
+//  frequency = map(frequency, 4, 23, 255, 0);
+//  arr[0] = frequency;
+//
+//  digitalWrite(S2, HIGH);
+//  digitalWrite(S3, HIGH);
+//  frequency = pulseIn(sensorOut, LOW);
+//  Serial.print("Right raw green = ");
+//  Serial.println(frequency);
+//  frequency = map(frequency, 4, 30, 255, 0);
+//  arr[1] = frequency;
+//
+//  digitalWrite(S2, LOW);
+//  digitalWrite(S3, HIGH);
+//  frequency = pulseIn(sensorOut, LOW);
+//  frequency = map(frequency, 0, 8, 255, 0);
+//  arr[2] = frequency;
 
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, LOW);
-  frequency = pulseIn(sensorOut, LOW);
-  Serial.print("Right raw red = ");
-  Serial.println(frequency);
-  frequency = map(frequency, 4, 23, 255, 0);
-  arr[0] = frequency;
+   // Read red
+   int frequency = 0;
 
-  digitalWrite(S2, HIGH);
-  digitalWrite(S3, HIGH);
-  frequency = pulseIn(sensorOut, LOW);
-  Serial.print("Right raw green = ");
-  Serial.println(frequency);
-  frequency = map(frequency, 4, 30, 255, 0);
-  arr[1] = frequency;
+   digitalWrite(S2, LOW);
+   digitalWrite(S3, LOW);
+   frequency = pulseIn(sensorOut, LOW);
+   Serial.print("Right raw red = ");
+   Serial.println(frequency);
+   rightRedReadingQueue[rrrqIndex] = frequency;
+   rrrqIndex = (rrrqIndex + 1) % QSIZE;
 
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, HIGH);
-  frequency = pulseIn(sensorOut, LOW);
-  frequency = map(frequency, 0, 8, 255, 0);
-  arr[2] = frequency;
+   // Read green
+   digitalWrite(S2, HIGH);
+   digitalWrite(S3, HIGH);
+   frequency = pulseIn(sensorOut, LOW);
+   Serial.print("Right raw green = ");
+   Serial.println(frequency);
+   rightGreenReadingQueue[rgrqIndex] = frequency;
+   rgrqIndex = (rgrqIndex + 1) % QSIZE;
+
+   if(getMedian(rightGreenReadingQueue, QSIZE) < RIGHT_GREEN_THRESHOLD) {
+     return GREEN;
+   } else if (getMedian(rightRedReadingQueue, QSIZE) < RIGHT_RED_THRESHOLD) {
+     return RED;
+   } else {
+      return BLACK;
+   }
 }
 
 void carStraight(int t)
@@ -161,6 +267,7 @@ long ping() {
   return cm;
 }
 void carStop(int t) {
+  Serial.println("CAR STOPPING");
   digitalWrite(In1, HIGH);
   digitalWrite(In2, LOW);
 
@@ -298,6 +405,7 @@ void updatePosition() {
       if (GREEN()) {
         cleanedDriveways++;
       } else {
+        Serial.println("FAILED GREEN");
         carStop(DT);
       }
     }
@@ -324,8 +432,8 @@ void updatePosition() {
 void loop()
 {
 
-  getColorL(currColorL);
-  getColorR(currColorR);
+  leftColor = getColorL();
+  rightColor = getColorR();
   currDist = ping();
 
   // PRINT FOR DEBUGGING
