@@ -30,13 +30,13 @@ int currDist;
 int cleanedDriveways = 0;
 
 bool isGreen(int arr[]){
-  return true;
+  return arr[0] < 100 && arr[1] > 100 && arr[2] < 100;
 }
 bool isRed(int arr[]){
-  return true;
+  return arr[0] > 100 && arr[1] < 100 && arr[2] < 100;
 }
 bool isBlack(int arr[]){
-  return true;
+  return arr[0] < 100 && arr[1] < 100 && arr[2] < 100;
 }
  
 void setup()
